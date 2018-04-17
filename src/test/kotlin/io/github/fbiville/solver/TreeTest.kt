@@ -83,7 +83,7 @@ class TreeTest {
                 .setChildrenOf(parent = 1, children = *arrayOf(38, 80))
                 .setChildrenOf(parent = 2, children = *arrayOf(82, 168))
 
-        val branch = tree.matchBranchByLeaf({it == 82})
+        val branch = tree.matchBranchesByLeaf({it == 82}).single()
 
         assertThat(branch).containsExactly(42, 84, 82)
     }
@@ -96,22 +96,25 @@ class TreeTest {
                 .setChildrenOf(parent = 2, children = *arrayOf(128, 124, 9))
                 .setChildrenOf(parent = 3, children = *arrayOf(13, 9, 2))
 
-        val branch = tree.matchBranchByLeaf({it == 2})
+        val branch = tree.matchBranchesByLeaf({it == 2}).single()
 
         assertThat(branch).containsExactly(128, 11, 2)
     }
 
     @Test
-    fun `finds first branch by order of declaration`() {
+    fun `finds all matching branches by declaration order`() {
         val tree = Tree(breadth = 3, depth = 2, root = 128)
                 .setChildrenOf(parent = 0, children = *arrayOf(130, 126, 11))
                 .setChildrenOf(parent = 1, children = *arrayOf(132, 128, 4))
                 .setChildrenOf(parent = 2, children = *arrayOf(128, 124, 9))
                 .setChildrenOf(parent = 3, children = *arrayOf(13, 9, 2))
 
-        val branch = tree.matchBranchByLeaf({it == 9})
+        val branch = tree.matchBranchesByLeaf({it == 9})
 
-        assertThat(branch).containsExactly(128, 126, 9)
+        assertThat(branch).containsExactly(
+                listOf(128, 126, 9),
+                listOf(128, 11, 9)
+        )
     }
 
     @Test
@@ -121,7 +124,7 @@ class TreeTest {
                 .setChildrenOf(parent = 1, children = *arrayOf(38, 80))
                 .setChildrenOf(parent = 2, children = *arrayOf(82, 168))
 
-        val branch = tree.matchBranchByLeaf({it == 42})
+        val branch = tree.matchBranchesByLeaf({it == 42})
 
         assertThat(branch).isEmpty()
     }

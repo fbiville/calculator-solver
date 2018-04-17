@@ -17,18 +17,13 @@ class Tree<T>(private val breadth: Int, private val depth: Int, private val root
         return this
     }
 
-    fun matchBranchByLeaf(predicate: (T) -> Boolean): List<T> {
-        val match = findIndexedLeaf(predicate)
-
-        return when (match) {
-            null -> emptyList()
-            else -> {
-                val start = TreeDimension(match.index, depth)
-                val end = TreeDimension(0, 0)
-                BottomUpProgression(start, end, { parentDimension(it) })
-                        .map { values[it.index] }
-                        .reversed()
-            }
+    fun matchBranchesByLeaf(predicate: (T) -> Boolean): List<List<T>> {
+        return matchLeaves(predicate).map {
+            val start = TreeDimension(it.index, depth)
+            val end = TreeDimension(0, 0)
+            BottomUpProgression(start, end, { parentDimension(it) })
+                    .map { values[it.index] }
+                    .reversed()
         }
     }
 
@@ -36,11 +31,12 @@ class Tree<T>(private val breadth: Int, private val depth: Int, private val root
 
     operator fun get(index: Int): T = values[index]
 
-    private fun findIndexedLeaf(filter: (T) -> Boolean): IndexedValue<T>? {
+    private fun matchLeaves(filter: (T) -> Boolean): List<IndexedValue<T>> {
         val indexRange = firstLeafIndex() until capacity
         return values.withIndex()
+                .filter { it.value != null }
                 .filter { it.index in indexRange }
-                .firstOrNull { filter(it.value) }
+                .filter { filter(it.value) }
     }
 
     private fun parentDimension(currentDimension: TreeDimension) =
