@@ -7,7 +7,7 @@ object NamedFunctions {
     fun noOp() = NamedFunction("NO-OP", { it.toLong() })
 
     fun substitute(search: Long, replace: Long): NamedFunction {
-        return NamedFunction("$search=>$replace", {
+        return NamedFunction("replace_${search}_by_$replace", {
             val substitution = it.toString().replace(search.toString(10), replace.toString(10))
             parseLong(substitution, 10)
         })
@@ -21,9 +21,9 @@ object NamedFunctions {
 
     fun concat(number: Long) = NamedFunction("$number", { parseLong(it.toString() + number, 10) })
 
-    fun shiftRight() = NamedFunction("Shift>", { shiftRight(it) })
+    fun shiftRight() = NamedFunction("ShiftRight", { shiftRight(it) })
 
-    fun shiftLeft() = NamedFunction("<Shift", { shiftLeft(it) })
+    fun shiftLeft() = NamedFunction("ShiftLeft", { shiftLeft(it) })
 
     fun sumDigits() = NamedFunction("SUM", { it.toString().chars().map { it - '0'.toInt() }.sum().toLong() })
 

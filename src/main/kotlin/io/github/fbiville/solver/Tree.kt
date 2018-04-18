@@ -2,19 +2,32 @@ package io.github.fbiville.solver
 
 import kotlin.coroutines.experimental.buildIterator
 
-class Tree<T>(private val breadth: Int, private val depth: Int, private val root: T) {
+class Tree<T>(val root: T, val breadth: Int, private val depth: Int) {
     internal val values: MutableList<T> = MutableList(capacity(breadth, depth), { _ -> root })
 
     internal val capacity: Int
         get() = values.size
 
+    fun rootElement(): Node<T> = Node(0, root)
+
     fun setChildrenOf(parent: Int, vararg children: T): Tree<T> {
         checkArguments(parent, children)
-        val start = breadth * parent + 1
+        val start = firstChildIndex(parent)
         for (position in start until start + breadth) {
             values[position] = children[position - start]
         }
         return this
+    }
+
+    fun getChildrenOf(parent: Int): List<Node<T>> {
+        val start = firstChildIndex(parent)
+        if (start >= capacity) {
+            return listOf()
+        }
+        val end = start + breadth
+        return (start until end).map {
+            Node(it, values[it])
+        }
     }
 
     fun matchBranchesByLeaf(predicate: (T) -> Boolean): List<List<T>> {
@@ -56,8 +69,9 @@ class Tree<T>(private val breadth: Int, private val depth: Int, private val root
         }
     }
 
-    private fun firstLeafIndex() = capacity - numberOfLeaves()
+    private fun firstChildIndex(parent: Int) = breadth * parent + 1
 
+    private fun firstLeafIndex() = capacity - numberOfLeaves()
     private fun numberOfLeaves() = Math.pow(breadth.toDouble(), depth.toDouble()).toInt()
 
 }
@@ -78,3 +92,5 @@ class BottomUpProgression(private val initialDimension: TreeDimension,
 }
 
 data class TreeDimension(val index: Int, val depth: Int)
+
+data class Node<out T>(val index: Int, val value: T)

@@ -8,14 +8,14 @@ class TreeTest {
 
     @Test
     fun `initializes tree`() {
-        assertThat(Tree(3, 2, "salut").capacity).isEqualTo(13)
-        assertThat(Tree(2, 3, 1).capacity).isEqualTo(15)
-        assertThat(Tree(2, 1, false).capacity).isEqualTo(3)
+        assertThat(Tree("salut", 3, 2).capacity).isEqualTo(13)
+        assertThat(Tree(1, 2, 3).capacity).isEqualTo(15)
+        assertThat(Tree(false, 2, 1).capacity).isEqualTo(3)
     }
 
     @Test
     fun `sets child values`() {
-        val tree = Tree(breadth = 2, depth = 1, root = "root")
+        val tree = Tree(root = "root", breadth = 2, depth = 1)
 
         tree.setChildrenOf(parent = 0, children = *arrayOf("first-child", "second-child"))
 
@@ -24,7 +24,7 @@ class TreeTest {
 
     @Test
     fun `sets child values at several levels`() {
-        val tree = Tree(breadth = 3, depth = 2, root = "root")
+        val tree = Tree(root = "root", breadth = 3, depth = 2)
 
         tree.setChildrenOf(parent = 0, children = *arrayOf("1st-child", "2nd-child", "3rd-child"))
             .setChildrenOf(parent = 1, children = *arrayOf("4th-child", "5th-child", "6th-child"))
@@ -42,7 +42,7 @@ class TreeTest {
 
     @Test
     fun `rejects index of leaf node`() {
-        val tree = Tree(breadth = 2, depth = 2, root = true)
+        val tree = Tree(root = true, breadth = 2, depth = 2)
 
         assertThatCode { tree.setChildrenOf(parent = 3, children = *arrayOf(true, false)) }
                 .hasMessage("Invalid parent position, got 3, valid index between 0 and 2 incl.")
@@ -51,7 +51,7 @@ class TreeTest {
 
     @Test
     fun `rejects negative index`() {
-        val tree = Tree(breadth = 2, depth = 2, root = true)
+        val tree = Tree(root = true, breadth = 2, depth = 2)
 
         assertThatCode { tree.setChildrenOf(parent = -1, children = *arrayOf(true, false)) }
                 .hasMessage("Invalid parent position, got -1, valid index between 0 and 2 incl.")
@@ -60,7 +60,7 @@ class TreeTest {
 
     @Test
     fun `rejects child size bigger than tree breadth`() {
-        val tree = Tree(breadth = 2, depth = 2, root = true)
+        val tree = Tree(root = true, breadth = 2, depth = 2)
 
         assertThatCode { tree.setChildrenOf(parent = 0, children = *arrayOf(true, false, true)) }
                 .hasMessage("Wrong number of children, got 3, expected 2")
@@ -69,7 +69,7 @@ class TreeTest {
 
     @Test
     fun `rejects child size less than tree breadth`() {
-        val tree = Tree(breadth = 2, depth = 2, root = true)
+        val tree = Tree(root = true, breadth = 2, depth = 2)
 
         assertThatCode { tree.setChildrenOf(parent = 0, children = *arrayOf(true)) }
                 .hasMessage("Wrong number of children, got 1, expected 2")
@@ -78,7 +78,7 @@ class TreeTest {
 
     @Test
     fun `finds branch by leaf value`() {
-        val tree = Tree(breadth = 2, depth = 2, root = 42)
+        val tree = Tree(root = 42, breadth = 2, depth = 2)
                 .setChildrenOf(parent = 0, children = *arrayOf(40, 84))
                 .setChildrenOf(parent = 1, children = *arrayOf(38, 80))
                 .setChildrenOf(parent = 2, children = *arrayOf(82, 168))
@@ -90,7 +90,7 @@ class TreeTest {
 
     @Test
     fun `finds branch by leaf value in k-ary tree`() {
-        val tree = Tree(breadth = 3, depth = 2, root = 128)
+        val tree = Tree(root = 128, breadth = 3, depth = 2)
                 .setChildrenOf(parent = 0, children = *arrayOf(130, 126, 11))
                 .setChildrenOf(parent = 1, children = *arrayOf(132, 128, 4))
                 .setChildrenOf(parent = 2, children = *arrayOf(128, 124, 9))
@@ -103,7 +103,7 @@ class TreeTest {
 
     @Test
     fun `finds all matching branches by declaration order`() {
-        val tree = Tree(breadth = 3, depth = 2, root = 128)
+        val tree = Tree(root = 128, breadth = 3, depth = 2)
                 .setChildrenOf(parent = 0, children = *arrayOf(130, 126, 11))
                 .setChildrenOf(parent = 1, children = *arrayOf(132, 128, 4))
                 .setChildrenOf(parent = 2, children = *arrayOf(128, 124, 9))
@@ -119,7 +119,7 @@ class TreeTest {
 
     @Test
     fun `returns empty branch when leaf value not found`() {
-        val tree = Tree(breadth = 2, depth = 2, root = 42)
+        val tree = Tree(root = 42, breadth = 2, depth = 2)
                 .setChildrenOf(parent = 0, children = *arrayOf(40, 84))
                 .setChildrenOf(parent = 1, children = *arrayOf(38, 80))
                 .setChildrenOf(parent = 2, children = *arrayOf(82, 168))
@@ -131,8 +131,35 @@ class TreeTest {
 
     @Test
     fun `computes non leaf indices`() {
-        assertThat(Tree(breadth = 2, depth = 1, root = "root").nonLeafIndices()).isEqualTo(0..0)
-        assertThat(Tree(breadth = 3, depth = 1, root = "root").nonLeafIndices()).isEqualTo(0..0)
-        assertThat(Tree(breadth = 2, depth = 3, root = "root").nonLeafIndices()).isEqualTo(0..6)
+        assertThat(Tree(root = "root", breadth = 2, depth = 1).nonLeafIndices()).isEqualTo(0..0)
+        assertThat(Tree(root = "root", breadth = 3, depth = 1).nonLeafIndices()).isEqualTo(0..0)
+        assertThat(Tree(root = "root", breadth = 2, depth = 3).nonLeafIndices()).isEqualTo(0..6)
+    }
+
+    @Test
+    fun `gets children of given node index`() {
+        val tree = Tree(root = 128, breadth = 3, depth = 2)
+                .setChildrenOf(parent = 0, children = *arrayOf(130, 126, 11))
+                .setChildrenOf(parent = 1, children = *arrayOf(132, 128, 4))
+                .setChildrenOf(parent = 2, children = *arrayOf(128, 124, 9))
+                .setChildrenOf(parent = 3, children = *arrayOf(13, 9, 2))
+
+        val result = tree.getChildrenOf(2)
+
+        assertThat(result).containsExactly(
+                Node(7, 128),
+                Node(8, 124),
+                Node(9, 9))
+    }
+
+    @Test
+    fun `gets empty list for leaf children`() {
+        val tree = Tree(root = 128, breadth = 3, depth = 2)
+                .setChildrenOf(parent = 0, children = *arrayOf(130, 126, 11))
+                .setChildrenOf(parent = 1, children = *arrayOf(132, 128, 4))
+                .setChildrenOf(parent = 2, children = *arrayOf(128, 124, 9))
+                .setChildrenOf(parent = 3, children = *arrayOf(13, 9, 2))
+
+        assertThat(tree.getChildrenOf(7)).isEmpty()
     }
 }

@@ -1,16 +1,18 @@
 package io.github.fbiville.solver
 
 import io.github.fbiville.solver.SolutionBranch.Companion.initialMove
+import java.nio.file.Files
 
 class Solver(initialValue: Number,
              maxMoves: Int,
              val targetValue: Number,
              val operations: List<NamedFunction>) {
 
-    private val values = Tree(operations.size, maxMoves, initialMove(initialValue))
+    private val values = Tree(initialMove(initialValue), operations.size, maxMoves)
 
     fun solve(): Solution {
         fillTree()
+        debug()
         return resolve()
     }
 
@@ -23,6 +25,13 @@ class Solver(initialValue: Number,
                 values.setChildrenOf(index, *noOps)
             }
         }
+    }
+
+    private fun debug() {
+        val tempFile = Files.createTempFile("tree", ".dot")
+        println(tempFile.toFile().absolutePath)
+        val graphviz = TreeVisitor(MoveVisitor()).visit(values)
+        Files.write(tempFile, graphviz.toByteArray(Charsets.UTF_8))
     }
 
     private fun resolve(): Solution {
